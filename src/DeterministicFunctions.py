@@ -7,6 +7,7 @@ Imports:
 Objects:
     BaseDeterministicFunction
     LorenzAttractor (BaseDeterministicFunction)
+    HasseAlgorithm (BaseDeterministicFunction)
 """
 
 from base_utils.imports import *

@@ -94,3 +94,5 @@ class CoreLayer(layers.Layer):
         if NewArgs is not None:
             self.local_history["rfunc_args"] = NewArgs
         return self.entropy_function(**self.local_history["rfunc_args"])if isinstance(self.local_history["rfunc_args"], dict) else self.entropy_function(self.local_history["rfunc_args"])
+
+
