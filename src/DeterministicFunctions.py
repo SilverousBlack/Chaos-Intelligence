@@ -29,7 +29,7 @@ class BaseDeterministicFunction():
         for var in InitialConditions:
             self.initial_conditions[var] = InitialConditions[var]
     
-    def __call__(self, target_object: object = object(), **args):
+    def __call__(self, target_object: object = None, **args):
         """See {}.call() for information.
         """.format(type(self).__name__)
         return self.call(target_object, **args)
@@ -92,7 +92,7 @@ class LorenzAttractor(BaseDeterministicFunction):
         self.x_max, self.y_max, self.z_max = x_max, y_max, z_max
     
     def call(self,
-             target_object: object = object(),
+             TargetObject: object = None,
              EntropyFunction: typing.Callable = random.uniform,
              SingleOutput: bool = False,
              var_x: typing.SupportsFloat = None,
@@ -179,24 +179,26 @@ class HasseAlghorithm(BaseDeterministicFunction):
         super(HasseAlghorithm, self).__init__(Seed=Seed)
         self.cycle = 0
         self.current = Seed
+        self.next = Seed
         self.entropy_function = EntropyFunction
         self.entropy_limit = int(EntropyLimit)
         self.hit_lock_point = False
         
-    def call(self):
+    def call(self,
+             TargetObject: object = None):
+        self.current = self.next
         if self.hit_lock_point:
             self.reset()
-        internal = int(3 * self.current + 1) if  not (self.current & 1) else int(self.current / 2)
-        self.current = internal
-        self.hit_lock_point = True if internal == 1 else False
+        self.next = int(3 * self.current + 1) if (self.current & 1) else int(self.current / 2)
+        self.hit_lock_point = True if self.current == 1 else False
         self.cycle += 1
-        return internal
+        return self.current
     
     def reset(self,
                  Seed: int = None,
                  EntropyFunction: typing.Callable = None,
                  EntropyLimit: int = None):
-        """Resets the instance with the given initial condition.
+        """Resets the instance with the given initial condition. Automatically called whenever the lock point is reached.
 
         Entropy function and limit, when not given, is retained. Use this function to change the initial condition. 
         
@@ -212,5 +214,33 @@ class HasseAlghorithm(BaseDeterministicFunction):
         self.current = Seed
         self.entropy_function = EntropyFunction if EntropyFunction is not None else self.entropy_function
         self.entropy_limit = int(EntropyLimit) if EntropyLimit is not None else self.entropy_limit
-        self.hit_lock_point = False
+        self.hit_lock_point = False 
+
+class CommonPiecewiseFunction(BaseDeterministicFunction):
+    def __init__(self,
+                 Conditionals: list = [lambda x: x < 0, lambda x: x > 0, lambda x: x == 0],
+                 Functions: list = [lambda x: abs(x), lambda x: math.log10(x), lambda x: x]):
+        if (len(Conditionals) < 1):
+            raise ValueError("Conditional function list must contain at least one (1) function.")
+        if (len(Functions) < 1):
+            raise ValueError("Function list must contain at least one (1) function.")
+        if (len(Conditionals) != len(Functions)):
+            raise ValueError("Conditionals and Functions list do not match in length")
+        super(CommonPiecewiseFunction, self).__init__(Conditionals=Conditionals,
+                                                      Functions=Functions)
         
+    def __repr__(self):
+        return "Deterministic Function [{}]: {} Conditions, {} Functions".format(type(self).__name__, len(self.initial_conditions["Conditionals"]), len(self.initial_conditions["Functions"]))
+        
+    def call(self,
+             TargetObject: object = None,
+             Value: typing.Any = None):
+        for condition, func in self.initial_conditions["Conditionals"], self.initial_conditions["Functions"]:
+            if (condition(Value)):
+                return func(Value)
+    
+    def reset(self,
+              Conditionals: list = [lambda x: x < 0, lambda x: x > 0, lambda x: x == 0],
+              Functions: list = [lambda x: abs(x), lambda x: math.log10(x), lambda x: x]):
+        self.initial_conditions["Conditionals"] = Conditionals
+        self.initial_conditions["Functions"] = Functions

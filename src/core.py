@@ -35,7 +35,7 @@ class CoreLayer(layers.Layer):
             Functions (`list`, optional): List of functions that might be applied, must be at least one (1) function. Defaults to `[lambda s, i: tf.reduce_sum(i)]`.
             OtherVars (`dict`, optional): Arguments that will be stored in the object, may override existing stored. Defaults to `{}`.
         """
-        if not (len(Functions) >= 1):
+        if (len(Functions) < 1):
             raise ValueError("Function list must contain at least one (1) function.")
         super(CoreLayer, self).__init__(**SuperInitArgs)
         self.nature = "Core"
@@ -73,7 +73,7 @@ class CoreLayer(layers.Layer):
               input_shape: typing.Iterable,
               WeightArgs: dict = {},
               BiasArgs: dict = {}):
-        """Build chaos layer.
+        """Builds chaos layer.
 
         Args:
             input_shape (typing.Iterable): iterable shape of inputs.
@@ -94,5 +94,4 @@ class CoreLayer(layers.Layer):
         if NewArgs is not None:
             self.local_history["rfunc_args"] = NewArgs
         return self.entropy_function(**self.local_history["rfunc_args"])if isinstance(self.local_history["rfunc_args"], dict) else self.entropy_function(self.local_history["rfunc_args"])
-
-
+    
