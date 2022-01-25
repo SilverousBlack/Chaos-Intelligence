@@ -1,12 +1,17 @@
 """Chaos Intelligence Core Module.
 
+This module defines core classes and functionalities of Chaos Intelligence.
+
 Imports:
     base_utils.imports | *
 Objects:
     CoreLayer (tensorflow.keras.layers.layer) | Base Class of Chaotic Layers
 """
 
-from base_utils.imports import *
+import random
+import tensorflow as tf
+from tensorflow.keras import layers, Model
+import typing
 
 class CoreLayer(layers.Layer):
     """The Base Class of Chaotic Layers. Follows Keras Functional API.

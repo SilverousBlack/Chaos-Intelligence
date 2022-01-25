@@ -8,9 +8,14 @@ Objects:
     BaseDeterministicFunction
     LorenzAttractor (BaseDeterministicFunction)
     HasseAlgorithm (BaseDeterministicFunction)
+    CommonPiecewiseFunction (BaseDeterministicFunction)
 """
 
-from base_utils.imports import *
+import abc
+import math
+import random
+import tensorflow as tf
+import typing
 
 class BaseDeterministicFunction():
     """Base Class of Deterministic Function Classes.
@@ -244,3 +249,5 @@ class CommonPiecewiseFunction(BaseDeterministicFunction):
               Functions: list = [lambda x: abs(x), lambda x: math.log10(x), lambda x: x]):
         self.initial_conditions["Conditionals"] = Conditionals
         self.initial_conditions["Functions"] = Functions
+
+
