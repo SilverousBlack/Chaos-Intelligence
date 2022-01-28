@@ -8,7 +8,7 @@ This API allows the changing of applied functionality of layer, when triggered b
 
 """
 
-from src.core import *
+from src.Core import *
 from src.DeterministicFunctions import *
 from src.OverlayLayer import *
 

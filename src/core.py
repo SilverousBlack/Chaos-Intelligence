@@ -200,7 +200,7 @@ class CoreLayerNoBlindOverride(layers.Layer):
     def use_rand(self, NewArgs = None):
         if NewArgs is not None:
             self.local_history["rfunc_args"] = NewArgs
-        return self.entropy_function(**self.local_history["rfunc_args"])if isinstance(self.local_history["rfunc_args"], dict) else self.entropy_function(self.local_history["rfunc_args"])
+        return self.entropy_function(**self.local_history["rfunc_args"]) if isinstance(self.local_history["rfunc_args"], dict) else self.entropy_function(self.local_history["rfunc_args"])
     
 class UniversalCoreLayer(layers.Layer):
     """A Universal Variation of the Base Class of Chaotic Layers. Follows Keras Functional API.
@@ -209,13 +209,14 @@ class UniversalCoreLayer(layers.Layer):
     
     This Base Class serves as fundamental building block of all Chaotic Layers."""
     def __init__(self,
+                 Overwrite = False,
                  DeterministicFunction: typing.Callable = lambda s: 0,
                  RandomFunction: typing.Callable = lambda: random.random(),
                  LayerSizeUnits: int = 32,
                  SuperInitArgs: dict = {},
                  DetFuncArgs: dict = {},
                  RandFuncArgs: dict = {},
-                 Functions: list = [lambda s, i: tf.reduce_sum(i)],
+                 Functions: list = [lambda s, i: tf.reduce_sum(i) * s.b],
                  **OtherVars):
         """Creates a new Chaos Core Layer. A Chaos Layer can have any number functions that might be applied to input, by virtue of the Deterministic Function.
 
@@ -241,7 +242,8 @@ class UniversalCoreLayer(layers.Layer):
         self.local_history = {"dfunc_args": DetFuncArgs, "rfunc_args": RandFuncArgs}
         self.units = LayerSizeUnits
         for var in OtherVars:
-            setattr(self, var, OtherVars[var])
+            if Overwrite:
+                setattr(self, var, OtherVars[var])
         
     def __repr__(self):
         return "Chaos {} Layer [{}]: {} unit(s), {} function(s)".format(self.nature, self.name, self.units, len(self.functions))
@@ -268,7 +270,7 @@ class UniversalCoreLayer(layers.Layer):
         self.local_history["current_entropy"] = self.use_rand()
         index = self.ensure_in_range(self.deterministic_function(self, **self.local_history["dfunc_args"]))
         self.local_history["current_targetfunc"] = index
-        return self.functions[index](self, inputs)
+        return self.functions[index](self, inputs) if not isinstance(self.functions[index], layers.Layer) else self.functions[index](inputs)
         
     def build(self,
               input_shape: typing.Iterable,
