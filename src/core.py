@@ -6,8 +6,11 @@ Imports:
     base_utils.imports | *
 Objects:
     CoreLayer (tensorflow.keras.layers.layer) | Base Class of Chaotic Layers
+    CoreLayerNoBlindOverride (tensorflow.keras.layers.layer) | Base Class Variation of Chaotic Layers with Internal Overriding Disabled
+    UniversalCoreLayer (tensorflow.keras.layers.layer) | Base Class Variation of Chaotic Layers with Optional Override Toggle
 """
 
+from inspect import isclass
 import random
 import tensorflow as tf
 from tensorflow.keras import layers, Model
@@ -297,4 +300,28 @@ class UniversalCoreLayer(layers.Layer):
             self.local_history["rfunc_args"] = NewArgs
         return self.entropy_function(**self.local_history["rfunc_args"])if isinstance(self.local_history["rfunc_args"], dict) else self.entropy_function(self.local_history["rfunc_args"])
     
+def _Core_test_standard_deterministic_function(TargetCallable: typing.Any):
+    if not callable(TargetCallable):
+        return False
+    else:
+        if (TargetCallable.__code__.co_argcount - (len(TargetCallable.__defaults__) if TargetCallable.__defaults__ is not None else 0)) > 2:
+            return False
+    return True
+    
+def _Core_test_standard_entropy_function(TargetCallable: typing.Any,
+                                         Threshold: typing.SupportsFloat,
+                                         TestCyle: int = 100,
+                                         InitArgs = {},
+                                         **EntropyArgs):
+    if not callable(TargetCallable):
+        return False
+    bluf = TargetCallable(**InitArgs) if isclass(TargetCallable) else TargetCallable
+    buffer = 0.0
+    cycle = 0
+    while cycle < TestCyle:
+        buffer += abs(bluf(**EntropyArgs))
+    return bool((buffer / (cycle + 1)) <= Threshold)
+
+def _Core_test_standard_functionality(TargetCallable: typing.Any):
+    pass
     
