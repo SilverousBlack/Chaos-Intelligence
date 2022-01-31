@@ -5,7 +5,7 @@ from src.Core import *
 from src.DeterministicFunctions import *
 
 class OverlayLayer(CoreLayer):
-    """A Chaos layer that overlays smaller pre-built layers.
+    """A Chaos layer that overlays smaller pre-built layers or functions.
     
     This layer uses matches condition to a smaller pre-built layer.
     In terms, the condition acts as the `interpreter_function`.
@@ -62,5 +62,4 @@ class OverlayLayer(CoreLayer):
                     if (var.__code__.co_argcount - (len(var.__defaults__) if var.__defaults__ is not None else 0)) > 2:
                         raise ValueError("Function in function list [{}] does not have qualified argument count.".format(var.__repr__()))
 
-bluf = OverlayLayer(Functions=[lambda g, Z, f=100: 0])
-print(bluf)
+

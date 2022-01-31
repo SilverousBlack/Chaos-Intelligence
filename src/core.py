@@ -10,10 +10,11 @@ Objects:
     UniversalCoreLayer (tensorflow.keras.layers.layer) | Base Class Variation of Chaotic Layers with Optional Override Toggle
 """
 
+from copy import deepcopy
 from inspect import isclass
 import random
 import tensorflow as tf
-from tensorflow.keras import layers, Model
+from tensorflow.keras import layers
 import typing
 
 class CoreLayer(layers.Layer):
@@ -302,38 +303,108 @@ class UniversalCoreLayer(layers.Layer):
     
 def _Core_test_standard_deterministic_function(TargetCallable: typing.Any,
                                                **InitArgs):
-    var = TargetCallable(**InitArgs) if isclass(TargetCallable) else TargetCallable
+    """Tests whether `TargetCallable` follows standard deterministic function specifications.
+
+    If `TargetCallable` is a class, initialization arguments can be specified for instatialization.
+    Otherwise, creates a copy of `TargetCallable` with `copy.deepcopy` to prevent unwanted usage of object.
+
+    Args:
+        TargetCallable (`typing.Any`): Class name or object to be tested.
+
+    Returns:
+        `bool`: True if the target object passes test, otherwise False
+    """
+    var = TargetCallable(**InitArgs) if isclass(TargetCallable) else deepcopy(TargetCallable)
     if not callable(var):
         return False
     else:
-        if (var.__code__.co_argcount - (len(var.__defaults__) if var.__defaults__ is not None else 0)) > 2:
-            return False
+        if isclass(TargetCallable):
+            if (var.__call__.__code__.co_argcount - (len(var.__call__.__defaults__) if var.__call__.__defaults__ is not None else 0)) > 2:
+                return False
+        else:
+            if (var.__code__.co_argcount - (len(var.__defaults__) if var.__defaults__ is not None else 0)) > 2:
+                return False
     return True
     
 def _Core_test_standard_entropy_function(TargetCallable: typing.Any,
                                          Threshold: typing.SupportsFloat,
+                                         Tolerance: float = 15,
                                          TestCyle: int = 100,
                                          InitArgs = {},
                                          **EntropyArgs):
+    """Tests whether `TargetCallable` follows standard entropy function specifications.
+
+    If `TargetCallable` is a class, initialization arguments can be specified for instatialization in argument `InitArgs`.
+    Otherwise, creates a copy of `TargetCallable` with `copy.deepcopy` to prevent unwanted usage of object.
+
+    Arguments to be passed to the random function can be optionally specified.
+    
+    As a rule, entropy must be a pseudo-random, hence a threshold and tolerance must be specified.
+    Therefore, random mean must be within the threshold tolerances to pass this test.
+    For widely random entropy functions, the centroid of peak and trough is recommended to be specified while a tolerance of percent apparent to peak/trough.
+    
+    Args:
+        TargetCallable (`typing.Any`): Class name or object to be tested
+        Threshold (`typing.SupportsFloat`): Randomnity threshold, mean within the test cycle.
+        Tolerance (`float`): Percent tolerance of threshold. Defaults to `15`.
+        TestCyle (`int`, optional): Amount of random uses. Defaults to `100`.
+        InitArgs (`dict`, optional): Initialization arguments to be used when `TargetCallable` is a class name. Defaults to `{}`.
+
+    Returns:
+        `bool`: True if the target object passes test, otherwise False
+    """
     if not callable(TargetCallable):
         return False
-    bluf = TargetCallable(**InitArgs) if isclass(TargetCallable) else TargetCallable
+    var = TargetCallable(**InitArgs) if isclass(TargetCallable) else deepcopy(TargetCallable)
     buffer = 0.0
     cycle = 0
     while cycle < TestCyle:
-        buffer += abs(bluf(**EntropyArgs))
-    return bool((buffer / (cycle + 1)) <= Threshold)
+        buffer += abs(var(**EntropyArgs))
+    return bool((Threshold * (1 - (Tolerance / 100))) <= (buffer / (cycle + 1)) <= (Threshold * (1 + (Tolerance / 100))))
 
 def _Core_test_standard_functionality(TargetCallable: typing.Any,
                                       **InitArgs):
+    """[summary]
+
+    Args:
+        TargetCallable (typing.Any): [description]
+
+    Returns:
+        `bool`: True if the target object passes test, otherwise False
+    """
     var = TargetCallable(**InitArgs) if isclass(TargetCallable) else TargetCallable
     if not callable(var):
         return False
     else:
         if not isinstance(var, layers.Layer):
-            if (var.__code__.co_argcount - (len(var.__defaults__) if var.__defaults__ is not None else 0)) > 2:
-                raise ValueError("Function in function list [{}] does not have qualified argument count.".format(var.__repr__()))
+            if isclass(TargetCallable):
+                if (var.__call__.__code__.co_argcount - (len(var.__call__.__defaults__) if var.__call__.__defaults__ is not None else 0)) > 2:
+                    return False
+            else:
+                if (var.__code__.co_argcount - (len(var.__defaults__) if var.__defaults__ is not None else 0)) > 2:
+                    return False
     return True
     
-    
+def _Core_test_qualified_chaos_core(TargetName: typing.Any,
+                                    **InitArgs):
+    """[summary]
+
+    Args:
+        TargetName (typing.Any): [description]
+
+    Returns:
+        `bool`: True if the target object passes test, otherwise False
+    """
+    if not isclass(TargetName):
+        if not issubclass(TargetName, layers.Layer):
+            return False
+    var = TargetName(**InitArgs) if isclass(TargetName) else TargetName
+    if not callable(var):
+        return False
+    if not (hasattr(var, "deterministic_function")
+            and hasattr(var, "entropy_function")
+            and hasattr(var, "functions")
+            and hasattr(var, "local_history")):
+        return False
+    return True
     
