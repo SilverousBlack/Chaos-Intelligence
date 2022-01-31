@@ -300,11 +300,13 @@ class UniversalCoreLayer(layers.Layer):
             self.local_history["rfunc_args"] = NewArgs
         return self.entropy_function(**self.local_history["rfunc_args"])if isinstance(self.local_history["rfunc_args"], dict) else self.entropy_function(self.local_history["rfunc_args"])
     
-def _Core_test_standard_deterministic_function(TargetCallable: typing.Any):
-    if not callable(TargetCallable):
+def _Core_test_standard_deterministic_function(TargetCallable: typing.Any,
+                                               **InitArgs):
+    var = TargetCallable(**InitArgs) if isclass(TargetCallable) else TargetCallable
+    if not callable(var):
         return False
     else:
-        if (TargetCallable.__code__.co_argcount - (len(TargetCallable.__defaults__) if TargetCallable.__defaults__ is not None else 0)) > 2:
+        if (var.__code__.co_argcount - (len(var.__defaults__) if var.__defaults__ is not None else 0)) > 2:
             return False
     return True
     
@@ -322,6 +324,14 @@ def _Core_test_standard_entropy_function(TargetCallable: typing.Any,
         buffer += abs(bluf(**EntropyArgs))
     return bool((buffer / (cycle + 1)) <= Threshold)
 
-def _Core_test_standard_functionality(TargetCallable: typing.Any):
-    pass
+def _Core_test_standard_functionality(TargetCallable: typing.Any,
+                                      **InitArgs):
+    var = TargetCallable(**InitArgs) if isclass(TargetCallable) else TargetCallable
+    if not callable(var):
+        return False
+    else:
+        if not isinstance(var, layers.Layer):
+            if (var.__code__.co_argcount - (len(var.__defaults__) if var.__defaults__ is not None else 0)) > 2:
+                raise ValueError("Function in function list [{}] does not have qualified argument count.".format(var.__repr__()))
+    return True
     
