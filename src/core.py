@@ -312,7 +312,7 @@ def _Core_test_standard_deterministic_function(TargetCallable: typing.Any,
         TargetCallable (`typing.Any`): Class name or object to be tested.
 
     Returns:
-        `bool`: True if the target object passes test, otherwise False
+        `bool`: True if the target object passes test, otherwise False.
     """
     var = TargetCallable(**InitArgs) if isclass(TargetCallable) else deepcopy(TargetCallable)
     if not callable(var):
@@ -344,14 +344,14 @@ def _Core_test_standard_entropy_function(TargetCallable: typing.Any,
     For widely random entropy functions, the centroid of peak and trough is recommended to be specified while a tolerance of percent apparent to peak/trough.
     
     Args:
-        TargetCallable (`typing.Any`): Class name or object to be tested
+        TargetCallable (`typing.Any`): Class name or object to be tested.
         Threshold (`typing.SupportsFloat`): Randomnity threshold, mean within the test cycle.
         Tolerance (`float`): Percent tolerance of threshold. Defaults to `15`.
         TestCyle (`int`, optional): Amount of random uses. Defaults to `100`.
         InitArgs (`dict`, optional): Initialization arguments to be used when `TargetCallable` is a class name. Defaults to `{}`.
 
     Returns:
-        `bool`: True if the target object passes test, otherwise False
+        `bool`: True if the target object passes test, otherwise False.
     """
     if not callable(TargetCallable):
         return False
@@ -364,13 +364,16 @@ def _Core_test_standard_entropy_function(TargetCallable: typing.Any,
 
 def _Core_test_standard_functionality(TargetCallable: typing.Any,
                                       **InitArgs):
-    """[summary]
+    """Tests whether `TargetCallable` follows standard chaos layer functionality specifications.
+    
+    If `TargetCallable` is a class, initialization arguments can be specified for instatialization.
+    Otherwise, creates a copy of `TargetCallable` with `copy.deepcopy` to prevent unwanted usage of object.
 
     Args:
-        TargetCallable (typing.Any): [description]
+        TargetCallable (`typing.Any`): Class name or object to be tested.
 
     Returns:
-        `bool`: True if the target object passes test, otherwise False
+        `bool`: True if the target object passes test, otherwise False.
     """
     var = TargetCallable(**InitArgs) if isclass(TargetCallable) else TargetCallable
     if not callable(var):
@@ -387,16 +390,22 @@ def _Core_test_standard_functionality(TargetCallable: typing.Any,
     
 def _Core_test_qualified_chaos_core(TargetName: typing.Any,
                                     **InitArgs):
-    """[summary]
+    """Tests whether `TargetCallable` is a qualified subclass of a chaos layer.
+
+    If `TargetCallable` is a class, initialization arguments can be specified for instatialization.
+    Otherwise, creates a copy of `TargetCallable` with `copy.deepcopy` to prevent unwanted usage of object.
 
     Args:
-        TargetName (typing.Any): [description]
+        TargetName (typing.Any): Class name or object to be tested.
 
     Returns:
-        `bool`: True if the target object passes test, otherwise False
+        `bool`: True if the target object passes test, otherwise False.
     """
     if not isclass(TargetName):
         if not issubclass(TargetName, layers.Layer):
+            return False
+    else:
+        if not isinstance(TargetName, layers.Layer):
             return False
     var = TargetName(**InitArgs) if isclass(TargetName) else TargetName
     if not callable(var):
@@ -408,3 +417,46 @@ def _Core_test_qualified_chaos_core(TargetName: typing.Any,
         return False
     return True
     
+def MakeCoreLayer(TargetObject: layers.Layer,
+                  TargetCoreLayerName: typing.Any = CoreLayer,
+                  Specifics: list = [],
+                  **InitArgs):
+    """Converts `TargetObject` to an Chaos Core Layer variation as specified in `TargetCoreLayerName`.
+    
+    This creates a new instance of `TargetCoreLayerName` with initialization parameters specified.
+    When an attribute already exists in this new instance, value shall not be copied over.
+    However, excluding those specified as initialization arguments, value shall be forced to be copied over from `TargetObject` when specified in `Specifics`.
+
+    When specified attribute exists already in the new instance, it will be attempted to be deleted to have clean copy over.
+    This, however, can cause an error when the object denies attribute deletion.
+
+    This function does not overwrite-converts `TargetObject`.
+
+    Args:
+        TargetObject (`layers.Layer`): Object whose data shall be copied over and be converted.
+        TargetCoreLayerName (`typing.Any`, optional): Specific variation of Chaos Core Layer. Defaults to CoreLayer.
+        Specifics (`list`, optional): Specific attributes to be forced copied over. Defaults to [].
+
+    Raises:
+        ValueError: Thrown when `TargetObject` is already a subclass of a CHaos Core variation.
+        ValueError: Thrown when `TargetCoreLayerName` is a Chaos Core Variation.
+
+    Returns:
+        (`CoreLayer` | `ChaosLayerNoBlindOverride` | `UniversalCoreLayer`): Conversion result.
+    """
+    if isinstance(TargetObject, (CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer)):
+        raise ValueError("`TargetObject` is already a core layer instance")
+    if TargetCoreLayerName not in (CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer):
+        raise ValueError("`TargetCoreLayerName` must be either CoreLayer, CoreLayerNoBlindOverride or UniversalCoreLayer")
+    buf = TargetCoreLayerName(**InitArgs)
+    internal = deepcopy(TargetObject)
+    data = [x for x in dir(internal) if x not in dir(buf)]
+    for ii in data:
+        setattr(buf, ii, getattr(internal, ii))
+    for ii in Specifics:
+        if not hasattr(internal, ii) or ii in InitArgs.keys():
+            continue
+        if hasattr(buf, ii):
+            delattr(buf, ii) if not callable(getattr(buf, ii)) else None
+        setattr(buf, ii, getattr(internal, ii))
+    return buf
