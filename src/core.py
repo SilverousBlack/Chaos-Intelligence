@@ -1,15 +1,3 @@
-"""Chaos Intelligence Core Module.
-
-This module defines core classes and functionalities of Chaos Intelligence.
-
-Imports:
-    base_utils.imports | *
-Objects:
-    CoreLayer (tensorflow.keras.layers.layer) | Base Class of Chaotic Layers
-    CoreLayerNoBlindOverride (tensorflow.keras.layers.layer) | Base Class Variation of Chaotic Layers with Internal Overriding Disabled
-    UniversalCoreLayer (tensorflow.keras.layers.layer) | Base Class Variation of Chaotic Layers with Optional Override Toggle
-"""
-
 from copy import deepcopy
 from inspect import isclass
 import random
@@ -390,13 +378,13 @@ def _Core_test_standard_functionality(TargetCallable: typing.Any,
     
 def _Core_test_qualified_chaos_core(TargetName: typing.Any,
                                     **InitArgs):
-    """Tests whether `TargetCallable` is a qualified subclass of a chaos layer.
+    """Tests whether `TargetName` is a qualified subclass of a chaos layer.
 
-    If `TargetCallable` is a class, initialization arguments can be specified for instatialization.
-    Otherwise, creates a copy of `TargetCallable` with `copy.deepcopy` to prevent unwanted usage of object.
+    If `TargetName` is a class, initialization arguments can be specified for instatialization.
+    Otherwise, creates a copy of `TargetName` with `copy.deepcopy` to prevent unwanted usage of object.
 
     Args:
-        TargetName (typing.Any): Class name or object to be tested.
+        TargetName (`typing.Any`): Class name or object to be tested.
 
     Returns:
         `bool`: True if the target object passes test, otherwise False.

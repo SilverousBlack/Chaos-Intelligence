@@ -1,16 +1,3 @@
-"""Chaos Intelligence Deterministic Functions Module
-
-Defines the base Deterministic Function class, and other common deterministic functions.
-
-Imports:
-    base_utils.imports | *
-Objects:
-    BaseDeterministicFunction
-    LorenzAttractor (BaseDeterministicFunction)
-    HasseAlgorithm (BaseDeterministicFunction)
-    CommonPiecewiseFunction (BaseDeterministicFunction)
-"""
-
 import abc
 import math
 import random

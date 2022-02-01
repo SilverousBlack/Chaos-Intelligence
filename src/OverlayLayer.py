@@ -1,6 +1,3 @@
-"""Chaos Intelligence Overlay Layer Module
-"""
-
 from src.Core import *
 from src.DeterministicFunctions import *
 
