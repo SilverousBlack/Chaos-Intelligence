@@ -50,7 +50,7 @@
 
 > A layer that is able to respond to a deterministic function's result
 
-
+d
 
 ## Details
 

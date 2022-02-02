@@ -448,3 +448,76 @@ def MakeCoreLayer(TargetObject: layers.Layer,
             delattr(buf, ii) if not callable(getattr(buf, ii)) else None
         setattr(buf, ii, getattr(internal, ii))
     return buf
+
+def __common_core_private_repr__(self):
+    return "Chaos {} Layer [{}]: {} unit(s), {} function(s)".format(self.nature, self.name, self.units, len(self.functions))
+
+def __common_core_public_build__(self,
+                                 input_shape: typing.Iterable,
+                                 WeightArgs: dict = {},
+                                 BiasArgs: dict = {}):
+    """Builds chaos layer.
+
+    Args:
+        input_shape (typing.Iterable): iterable shape of inputs.
+        WeightArgs (dict, optional): Arguments to be passed on `self.add_weight()` for `self.w`, with exception to be shape. Defaults to {}.
+        BiasArgs (dict, optional): Arguments to be passed on `self.add_weight()` for `self.b`, with exception of the shape. Defaults to {}.
+    """
+    self.w = self.add_weight(
+        shape=(input_shape[-1], self.units),
+        **WeightArgs
+    )
+    self.b = self.add_weight(
+        shape=(self.units,),
+        **BiasArgs
+    )
+    
+def __common_core_public_call__(self,
+                                inputs:tf.Tensor):
+    """Computes input tensor.
+
+    Calculates the deterministic function given the saved arguments.
+    Current input and calculated entropy, is saved at `local_history`
+
+    Args:
+        inputs (tf.Tensor): input tensor to be computed.
+
+    Returns:
+        tf.Tensor: computed tensor.
+    """
+    self.local_history["current_input"] = input
+    self.local_history["current_entropy"] = self.use_rand()
+    index = self.ensure_in_range(self.deterministic_function(self, **self.local_history["dfunc_args"]))
+    self.local_history["current_targetfunc"] = index
+    return self.functions[index](self, inputs) if not isinstance(self.functions[index], layers.Layer) else self.functions[index](inputs)
+
+def WrapToCoreLayer(TargetObject: layers.Layer,
+                    TargetCoreLayerName: typing.Any = CoreLayer,
+                    DeterministicFunction: typing.Callable = lambda s: 0,
+                    RandomFunction: typing.Callable = lambda: random.random(),
+                    LayerSizeUnits: int = 32,
+                    DetFuncArgs: dict = {},
+                    RandFuncArgs: dict = {},
+                    Functions: list = [lambda s, i: tf.reduce_sum(i)],
+                    RepresentationFunction: typing.Callable = __common_core_private_repr__,
+                    BuildFunction: typing.Callable = __common_core_public_build__,
+                    CallFunction: typing.Callable = __common_core_public_call__,
+                    **OtherVars):
+    if isinstance(TargetObject, (CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer)):
+        raise ValueError("`TargetObject` is already a core layer instance")
+    if TargetCoreLayerName not in (CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer):
+        raise ValueError("`TargetCoreLayerName` must be either CoreLayer, CoreLayerNoBlindOverride or UniversalCoreLayer")
+    internal = deepcopy(TargetObject)
+    internal.__class__ = TargetCoreLayerName
+    setattr(internal, "__repr__", RepresentationFunction)
+    setattr(internal, "build", BuildFunction)
+    setattr(internal, "call", CallFunction)
+    setattr(internal, "nature", "Core")
+    setattr(internal, "deterministic_function", DeterministicFunction)
+    setattr(internal, "entropy_function", RandomFunction)
+    setattr(internal, "functions", Functions)
+    setattr(internal, "local_history", {"dfunc_args": DetFuncArgs, "rfunc_args": RandFuncArgs})
+    setattr(internal, "units", LayerSizeUnits)
+    for var in OtherVars:
+        setattr(internal, var, OtherVars[var])
+    return internal
