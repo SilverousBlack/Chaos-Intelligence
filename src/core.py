@@ -426,7 +426,7 @@ def MakeCoreLayer(TargetObject: layers.Layer,
         Specifics (`list`, optional): Specific attributes to be forced copied over. Defaults to [].
 
     Raises:
-        ValueError: Thrown when `TargetObject` is already a subclass of a CHaos Core variation.
+        ValueError: Thrown when `TargetObject` is already a subclass of a Chaos Core variation.
         ValueError: Thrown when `TargetCoreLayerName` is a Chaos Core Variation.
 
     Returns:
@@ -503,6 +503,31 @@ def WrapToCoreLayer(TargetObject: layers.Layer,
                     BuildFunction: typing.Callable = __common_core_public_build__,
                     CallFunction: typing.Callable = __common_core_public_call__,
                     **OtherVars):
+    """Wraps `TargetObject` to be a Chaos Core Layer variation `TargetCoreLayerName`.
+    
+    This function converts `TargetObject` by binding standard attributes using `setattr`.
+    Therefore, the behavior of this function is subject to the overwritability of the attributes.
+
+    Args:
+        TargetObject (`layers.Layer`): Object whose data shall be copied over and be wrapped.
+        TargetCoreLayerName (`typing.Any`, optional): Specific variation of Chaos Core Layer. Defaults to CoreLayer.
+        DeterministicFunction (`typing.Callable`, optional): Internally used deterministic function, return must be must be a numerical value. Defaults to `lambda:0`.
+        RandomFunction (`typing.Callable`, optional): Internally used random function, for entropy, may be used externally by `self.use_rand()`. Defaults to `lambda:random.random()`.
+        LayerSizeUnits (`int`, optional): Size or Number of Units in the Layer . Defaults to `32`.
+        DetFuncArgs (`dict`, optional): Optional arguments to be passed to the deterministic function when called, arguments are recorded. Defaults to `{}`.
+        RandFuncArgs (`dict`, optional): Optional arguments to be passed to the random function when called, arguments are recorded. Defaults to `{}`.
+        Functions (`list`, optional): List of functions that might be applied, must be at least one (1) function. Defaults to `[lambda s, i: tf.reduce_sum(i)]`.
+        RepresentationFunction (typing.Callable, optional): `__repr__` to be bound, overwrites previously bound function. Defaults to __common_core_private_repr__.
+        BuildFunction (typing.Callable, optional): `build` function to be bound, overwrites previously bound function. Defaults to __common_core_public_build__.
+        CallFunction (typing.Callable, optional): `call` function to be bound, overwrites previously bound function. Defaults to __common_core_public_call__.
+
+    Raises:
+        ValueError: Thrown when `TargetObject` is already a subclass of a Chaos Core variation.
+        ValueError: Thrown when `TargetCoreLayerName` is a Chaos Core Variation.
+
+    Returns:
+        (`CoreLayer` | `ChaosLayerNoBlindOverride` | `UniversalCoreLayer`): Conversion result.
+    """
     if isinstance(TargetObject, (CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer)):
         raise ValueError("`TargetObject` is already a core layer instance")
     if TargetCoreLayerName not in (CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer):

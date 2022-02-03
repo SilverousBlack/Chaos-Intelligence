@@ -236,5 +236,3 @@ class CommonPiecewiseFunction(BaseDeterministicFunction):
               Functions: list = [lambda x: abs(x), lambda x: math.log10(x), lambda x: x]):
         self.initial_conditions["Conditionals"] = Conditionals
         self.initial_conditions["Functions"] = Functions
-
-
