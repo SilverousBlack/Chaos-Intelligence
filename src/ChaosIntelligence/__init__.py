@@ -1,4 +1,4 @@
-module_version = "0.0.0d"
+module_version = "0.0.0"
 module_status = "development"
 
 __version__ = module_version
