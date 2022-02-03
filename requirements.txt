@@ -1,3 +1,2 @@
-numpy>=1.19.5
-tensorflow>=2.5.0
-tf-nightly>=2.9.0.dev20220123
+tensorflow>=2.7.1
+tf-nightly>=2.9.0.dev20220203
