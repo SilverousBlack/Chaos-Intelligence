@@ -130,7 +130,7 @@ class CoreLayerNoBlindOverride(layers.Layer):
         """
         if (len(Functions) < 1):
             raise ValueError("Function list must contain at least one (1) function.")
-        super(CoreLayer, self).__init__(**SuperInitArgs)
+        super(CoreLayerNoBlindOverride, self).__init__(**SuperInitArgs)
         self.nature = "Core"
         self.deterministic_function = DeterministicFunction
         self.entropy_function = RandomFunction
@@ -212,6 +212,9 @@ class UniversalCoreLayer(layers.Layer):
                  **OtherVars):
         """Creates a new Chaos Core Layer. A Chaos Layer can have any number functions that might be applied to input, by virtue of the Deterministic Function.
 
+        Overwriting is controlled by the `Overwrite` argument.
+        When `True`, object creation will cause all named variables in `OtherVars` be overwritten.
+
         Args:
             DeterministicFunction (`typing.Callable`, optional): Internally used deterministic function, return must be must be a numerical value. Defaults to `lambda:0`.
             RandomFunction (`typing.Callable`, optional): Internally used random function, for entropy, may be used externally by `self.use_rand()`. Defaults to `lambda:random.random()`.
@@ -226,7 +229,7 @@ class UniversalCoreLayer(layers.Layer):
         """
         if (len(Functions) < 1):
             raise ValueError("Function list must contain at least one (1) function.")
-        super(CoreLayer, self).__init__(**SuperInitArgs)
+        super(UniversalCoreLayer, self).__init__(**SuperInitArgs)
         self.nature = "Core"
         self.deterministic_function = DeterministicFunction
         self.entropy_function = RandomFunction
