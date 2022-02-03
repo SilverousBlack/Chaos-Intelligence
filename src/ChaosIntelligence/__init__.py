@@ -1,6 +1,8 @@
 module_version = "0.0.0d"
 module_status = "development"
 
+__version__ = module_version
+
 if __name__ == "__main__":
     print("""Chaos-Intelligence
 A Layer API built on top of `tensorflow.keras` Functional API.
@@ -29,4 +31,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """)
     
-from src import *
+from modules import *

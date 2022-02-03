@@ -7,6 +7,6 @@ Particularly, the tests herein test functionality and structure, as according to
 import argparse as ap
 import pathlib as pl
 import unittest as ut
-from src.Core import _Core_test_standard_deterministic_function, _Core_test_standard_entropy_function, _Core_test_standard_functionality
+from modules.Core import _Core_test_standard_deterministic_function, _Core_test_standard_entropy_function, _Core_test_standard_functionality
 
 
