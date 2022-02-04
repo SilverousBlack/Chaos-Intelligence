@@ -1,5 +1,5 @@
-from modules.Core import *
-from modules.DeterministicFunctions import *
+from ChaosIntelligence.modules.Core import *
+from ChaosIntelligence.modules.DeterministicFunctions import *
 
 class OverlayLayer(CoreLayer):
     """A Chaos layer that overlays smaller pre-built layers or functions.
