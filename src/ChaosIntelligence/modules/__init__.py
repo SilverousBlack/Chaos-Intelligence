@@ -1,3 +1,4 @@
-from modules.Core import CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer, MakeCoreLayer, WrapToCoreLayer
-from modules.DeterministicFunctions import BaseDeterministicFunction, LorenzAttractor, HasseAlghorithm, CommonPiecewiseFunction
-from modules.OverlayLayer import OverlayLayer
+from ChaosIntelligence.modules.Core import CoreLayer, CoreLayerNoBlindOverride, UniversalCoreLayer, MakeCoreLayer, WrapToCoreLayer
+from ChaosIntelligence.modules.DeterministicFunctions import BaseDeterministicFunction, LorenzAttractor, HasseAlghorithm, CommonPiecewiseFunction
+from ChaosIntelligence.modules.OverlayLayer import OverlayLayer
+import ChaosIntelligence.modules.GraphAssimilatorModel
