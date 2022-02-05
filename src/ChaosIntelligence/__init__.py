@@ -1,4 +1,4 @@
-__module_version = "0.0.1.dev202202.1"
+__module_version = "0.0.2.dev202202"
 __module_status = "development"
 __module_release = "February 2022 Development Release"
 __module_version_patch = "202202 Patch 1"
