@@ -1,7 +1,9 @@
-module_version = "0.0.0"
-module_status = "development"
+__module_version = "0.0.1.dev202202.1"
+__module_status = "development"
+__module_release = "February 2022 Development Release"
+__module_version_patch = "202202 Patch 1"
 
-__version__ = module_version
+__version__ = __module_version
 
 if __name__ == "__main__":
     print("""Chaos-Intelligence
