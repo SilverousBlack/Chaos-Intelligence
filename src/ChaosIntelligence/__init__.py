@@ -1,7 +1,7 @@
-__module_version = "0.0.2.dev202202"
+__module_version = "0.0.3.dev202203"
 __module_status = "development"
-__module_release = "February 2022 Development Release"
-__module_version_patch = "202202 Patch 1"
+__module_release = "March 2022 Development Release"
+__module_version_patch = "202203"
 
 __version__ = __module_version
 
