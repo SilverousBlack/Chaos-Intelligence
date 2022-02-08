@@ -1,5 +1,4 @@
 from copy import deepcopy
-import weakref
 import matplotlib.pyplot
 import numpy
 import tensorflow as tf
@@ -34,12 +33,14 @@ class AssimilatorNode():
         self.tracked_object.layers[index] = {"name": name, "layer": TargetLayer}
     
     def revert(self):
+        if self.bound_object is None:
+            raise RuntimeError("No bound object to ")
         setattr(self.bound_object, "call", self.bound_object.assimilator["original"])
         delattr(self.bound_object, "assimilator")
         
     def retrieve(self):
         if self.bound_object is None:
-            raise RuntimeError("")
+            raise RuntimeError("No bound object to retrive data from.")
 
 
 class GraphAssimilator():
@@ -49,3 +50,5 @@ class GraphAssimilator():
     """
     def __init__(self):
         self.layers = []
+        self.assimilators = []
+        self.map = []
