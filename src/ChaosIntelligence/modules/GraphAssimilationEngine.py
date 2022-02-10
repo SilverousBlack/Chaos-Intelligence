@@ -2,7 +2,7 @@ from copy import deepcopy
 import matplotlib.pyplot
 import numpy
 import tensorflow as tf
-from tensorflow.keras import layers, models
+from tensorflow.keras import layers, models, Input
 import typing
 
 class GraphAssimilator():
@@ -16,6 +16,8 @@ class AssimilatorNode():
               TargetLayer: layers.Layer,
               index: typing.SupportsInt,
               name: typing.AnyStr):
+        if self.bound_object is not None:
+            self.revert()
         self.bound_object = TargetLayer
         while len(self.tracked_object.layers) <= index:
             self.tracked_object.layers.append({})
@@ -34,7 +36,7 @@ class AssimilatorNode():
     
     def revert(self):
         if self.bound_object is None:
-            raise RuntimeError("No bound object to ")
+            raise RuntimeError("No bound object to revert")
         setattr(self.bound_object, "call", self.bound_object.assimilator["original"])
         delattr(self.bound_object, "assimilator")
         
@@ -42,6 +44,13 @@ class AssimilatorNode():
         if self.bound_object is None:
             raise RuntimeError("No bound object to retrive data from.")
 
+    def copy_imbue(self,
+                   TargetLayer: layers.Layer,
+                   index: typing.SupportsInt,
+                   name: typing.AnyStr):
+        internal = deepcopy(TargetLayer)
+        self.imbue(internal, index, name)
+        return internal
 
 class GraphAssimilator():
     """This object takes record of inputs and results of a data model to create an assimilation model.
@@ -52,3 +61,18 @@ class GraphAssimilator():
         self.layers = []
         self.assimilators = []
         self.map = []
+        self.bound_object = None
+        
+    def build(self,
+              TargetModel: models.Model):
+        if self.bound_object is not None:
+            self.revert()
+        self.bound_object = TargetModel
+        anchor = TargetModel.layers[len(TargetModel.layers) - 1]
+        while(anchor is not TargetModel.inputs):
+            pass
+        pass
+    
+    def revert(self):
+        pass
+    
