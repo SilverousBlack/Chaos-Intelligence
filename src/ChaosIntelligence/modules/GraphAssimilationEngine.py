@@ -37,7 +37,7 @@ class AssimilatorNode():
     def revert(self):
         if self.bound_object is None:
             raise RuntimeError("No bound object to revert")
-        setattr(self.bound_object, "call", self.bound_object.assimilator["original"])
+        setattr(self.bound_object, "call", self.bound_object._old_call)
         delattr(self.bound_object, "assimilator")
         
     def retrieve(self):
@@ -53,8 +53,9 @@ class AssimilatorNode():
             outp = self.bound_object.assimilator["output"]
         else:
             raise RuntimeError("No output recorded to retrieve")
-        return (self.bound_object.name, {"input": inp,
-                                         "output": outp})
+        return (self.bound_object.name,
+                self._location,
+                {"input": inp, "output": outp})
 
     def copy_imbue(self,
                    TargetLayer: layers.Layer,
