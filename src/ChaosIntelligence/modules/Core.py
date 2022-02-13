@@ -2,7 +2,7 @@ from copy import deepcopy
 from inspect import isclass
 import random
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
 import typing
 
 class CoreLayer(layers.Layer):
